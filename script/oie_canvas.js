@@ -5,7 +5,9 @@ class OieCanvas extends React.Component {
             width: 0,
             height: 0,
             textFields: [],
-            shapes: []
+            shapes: [],
+            positionX: 0,
+            positionY: 0
         }
         this.textFieldId = 0;
         this.scale = 1;
@@ -49,13 +51,15 @@ class OieCanvas extends React.Component {
         rightBar.style.top = '0';
         bottomBar.style.width = '100%';
         bottomBar.style.left = '0';
-        this.positionX = (this.state.width - this.image.width * this.scale) * 0.5;
-        this.positionY = (this.state.height - this.image.height * this.scale) * 0.5;
+        this.setState({
+            positionX: (this.state.width - this.image.width * this.scale) * 0.5,
+            positionY: (this.state.height - this.image.height * this.scale) * 0.5
+        });
         this.redraw();
 
         evenBus.$emit('EventEnableCrop', {
-            x: this.positionX,
-            y: this.positionY,
+            x: this.state.positionX,
+            y: this.state.positionY,
             width: this.image.width * this.scale,
             height: this.image.height * this.scale,
             parentW: this.state.width,
@@ -96,20 +100,23 @@ class OieCanvas extends React.Component {
                 <div id="relative_container" style={{
                     position: 'relative', width: this.state.width, height: this.state.height, overflow: 'hidden'
                 }}>
-                    <canvas id="canvas" className="positioned"/>
+                    <canvas id="canvas" className="positioned" style={{
+                        left: this.state.positionX,
+                        top: this.state.positionY
+                    }}/>
                     <div id="all_text_field_container">
                         {
                             this.state.textFields.map((style) => style ? (
                                 <FlexibleTextField id={style.id}
-                                                 x={this.state.width * 0.5}
-                                                 y={this.state.height * 0.5 - Math.min(this.state.height * 0.5, 70) * 0.5}
-                                                 width={this.state.width * 0.5}
-                                                 height={Math.min(this.state.height * 0.5, 70)}
-                                                 scale={this.scale}
-                                                 offsetX={this.positionX}
-                                                 offsetY={this.positionY}
-                                                 fontSize={style.size}
-                                                 font={style.font} color={style.color}/>
+                                                   x={this.state.width * 0.5}
+                                                   y={this.state.height * 0.5 - Math.min(this.state.height * 0.5, 70) * 0.5}
+                                                   width={this.state.width * 0.5}
+                                                   height={Math.min(this.state.height * 0.5, 70)}
+                                                   scale={this.scale}
+                                                   offsetX={this.state.positionX}
+                                                   offsetY={this.state.positionY}
+                                                   fontSize={style.size}
+                                                   font={style.font} color={style.color}/>
                             ) : (<div/>))
                         }
                     </div>
@@ -122,8 +129,8 @@ class OieCanvas extends React.Component {
                                                width={this.state.width * 0.5}
                                                height={Math.min(this.state.height * 0.5, 70)}
                                                scale={this.scale}
-                                               offsetX={this.positionX}
-                                               offsetY={this.positionY}
+                                               offsetX={this.state.positionX}
+                                               offsetY={this.state.positionY}
                                                isFill={style.isFill}
                                                strokeWidth={style.lineWidth}
                                                color={style.color}
@@ -162,11 +169,10 @@ class OieCanvas extends React.Component {
         let parentH = this.state.height;
         let x = (parentW - w) * 0.5;
         let y = (parentH - h) * 0.5;
-        this.positionX = x;
-        this.positionY = y;
-        console.log('state = ', this.state);
-        console.log('x, y = ', x, y);
-        console.log('w, h = ', w, h);
+        this.setState({
+            positionX: x,
+            positionY: y
+        });
         this.redraw();
         let rightBar = document.getElementById("right_scroll");
         let bottomBar = document.getElementById("bottom_scroll");
@@ -196,8 +202,8 @@ class OieCanvas extends React.Component {
         let h = this.image.height * this.scale;
         let parentW = this.state.width;
         let parentH = this.state.height;
-        let x = this.positionX;
-        let y = this.positionY;
+        let x = this.state.positionX;
+        let y = this.state.positionY;
         this.offsetX = (w > parentW) ? -x : 0;
         this.offsetY = (h > parentH) ? -y : 0;
         let canvas = document.getElementById("canvas");
@@ -209,8 +215,8 @@ class OieCanvas extends React.Component {
         this.canvasContext.drawImage(this.src, 0, 0, this.image.width, this.image.height, 0, 0, w, h);
         this.freeDraw(this.canvasContext, this.scale);
         evenBus.$emit('EventImageRedraw', {
-            offsetX: this.positionX,
-            offsetY: this.positionY,
+            offsetX: this.state.positionX,
+            offsetY: this.state.positionY,
             scale: this.scale,
         })
     }
@@ -244,8 +250,8 @@ class OieCanvas extends React.Component {
             this.freeDraw(context, 1);
             this.drawPoints = [];
             context.translate(style.x, style.y);
-            context.rotate(style.rotate/180*Math.PI);
-            context.drawImage(document.getElementById("text_image"), -style.width*0.5, 0);
+            context.rotate(style.rotate / 180 * Math.PI);
+            context.drawImage(document.getElementById("text_image"), -style.width * 0.5, 0);
             this.backUpImage();
         }).bind(this);
         text_image.src = style.url;
@@ -320,8 +326,9 @@ class OieCanvas extends React.Component {
             newPos = 0;
         else if (newPos > parentH - h)
             newPos = parentH - h;
-
-        this.positionY = -newPos;
+        this.setState({
+            positionY: this.state.positionY - newPos
+        });
         bar.style.top = '' + newPos;
         this.oldMousePos = e.screenY;
         this.redraw();
@@ -356,7 +363,9 @@ class OieCanvas extends React.Component {
             newPos = 0;
         else if (newPos > parentW - w)
             newPos = parentW - w;
-        this.positionX = -newPos;
+        setState({
+            positionX: this.state.positionX - newPos
+        });
         bar.style.left = '' + newPos;
         this.oldMousePos = e.screenX;
         this.redraw();
@@ -461,7 +470,7 @@ class OieCanvas extends React.Component {
 
     applyCrop(info) {
         let input = cv.imread(this.src);
-        let ROI = new cv.Rect((info.startX - this.positionX) / this.scale, (info.startY - this.positionY) / this.scale, info.width / this.scale, info.height / this.scale);
+        let ROI = new cv.Rect((info.startX - this.state.positionX) / this.scale, (info.startY - this.state.positionY) / this.scale, info.width / this.scale, info.height / this.scale);
         let output = input.roi(ROI);
         this.flushImage(output);
         this.scale = 1;
