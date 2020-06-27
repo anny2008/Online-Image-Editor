@@ -7,7 +7,11 @@ class OieCanvas extends React.Component {
             textFields: [],
             shapes: [],
             positionX: 0,
-            positionY: 0
+            positionY: 0,
+            rightBarPos: 0,
+            bottomBarPos: 0,
+            rightBarHeight: 0,
+            bottomBarWidth: 0
         }
         this.textFieldId = 0;
         this.scale = 1;
@@ -44,22 +48,24 @@ class OieCanvas extends React.Component {
     enableCrop() {
         this.allowZooming = false;
         this.scale = Math.min((this.state.width - 50) / this.image.width, (this.state.height - 50) / this.image.height, 1);
+        let barParentH = document.getElementById("right_scroll_bar").offsetHeight;
+        let barParentW = document.getElementById("bottom_scroll_bar").offsetWidth;
+        let posX= (this.state.width - this.image.width * this.scale) * 0.5;
+        let posY= (this.state.height - this.image.height * this.scale) * 0.5;
 
-        let rightBar = document.getElementById("right_scroll");
-        let bottomBar = document.getElementById("bottom_scroll");
-        rightBar.style.height = '100%';
-        rightBar.style.top = '0';
-        bottomBar.style.width = '100%';
-        bottomBar.style.left = '0';
         this.setState({
-            positionX: (this.state.width - this.image.width * this.scale) * 0.5,
-            positionY: (this.state.height - this.image.height * this.scale) * 0.5
+            positionX: posX,
+            positionY: posY,
+            rightBarHeight: barParentH,
+            rightBarPos: 0,
+            bottomBarPos: 0,
+            bottomBarWidth: barParentW,
         });
         this.redraw();
 
         evenBus.$emit('EventEnableCrop', {
-            x: this.state.positionX,
-            y: this.state.positionY,
+            x: posX,
+            y: posY,
             width: this.image.width * this.scale,
             height: this.image.height * this.scale,
             parentW: this.state.width,
@@ -141,10 +147,16 @@ class OieCanvas extends React.Component {
                     </div>
                     <CropRect/>
                     <div id="right_scroll_bar">
-                        <div id="right_scroll" className="bg-grey-100"/>
+                        <div id="right_scroll" className="bg-grey-100 positioned" style={{
+                            height: this.state.rightBarHeight,
+                            top: this.state.rightBarPos
+                        }}/>
                     </div>
                     <div id="bottom_scroll_bar">
-                        <div id="bottom_scroll" className="bg-grey-100"/>
+                        <div id="bottom_scroll" className="bg-grey-100 positioned" style={{
+                            width: this.state.bottomBarWidth,
+                            left: this.state.bottomBarPos
+                        }}/>
                     </div>
                 </div>
                 <div className="margin-none width-fluid padding-5">
@@ -174,26 +186,43 @@ class OieCanvas extends React.Component {
             positionY: y
         });
         this.redraw();
-        let rightBar = document.getElementById("right_scroll");
+        let rightBarHeight = this.state.rightBarHeight;
+        let rightBarPos = this.state.rightBarPos;
+        let bottomBarWidth = this.state.bottomBarWidth;
+        let bottomBarPos = this.state.bottomBarPos;
         let bottomBar = document.getElementById("bottom_scroll");
         if (h > parentH) {
             let barParentH = document.getElementById("right_scroll_bar").offsetHeight;
-            let barH = parentH / h * 100;
-            rightBar.style.height = '' + barH + '%';
-            rightBar.style.top = '' + (barParentH - barH * barParentH * 0.01) * 0.5;
+            let barH = parentH / h;
+            // rightBar.style.height = '' + barH + '%';
+            rightBarHeight = barH * barParentH;
+            rightBarPos = (barParentH - rightBarHeight) * 0.5;
+            // rightBar.style.top = '' + (barParentH - barH * barParentH * 0.01) * 0.5;
         } else {
-            rightBar.style.height = '100%';
-            rightBar.style.top = '0';
+            // rightBar.style.height = '100%';
+            // rightBar.style.top = '0';
+            rightBarHeight = parentH;
+            rightBarPos = 0;
         }
         if (w > parentW) {
-            let barW = parentW / w * 100;
+            let barW = parentW / w;
             let barParentW = document.getElementById("bottom_scroll_bar").offsetWidth;
-            bottomBar.style.width = '' + barW + '%';
-            bottomBar.style.left = '' + (barParentW - barW * barParentW * 0.01) * 0.5;
+            // bottomBar.style.width = '' + barW + '%';
+            // bottomBar.style.left = '' + (barParentW - barW * barParentW * 0.01) * 0.5;
+            bottomBarWidth = barW * barParentW;
+            bottomBarPos = (barParentW - bottomBarWidth) * 0.5;
         } else {
-            bottomBar.style.width = '100%';
-            bottomBar.style.left = '0';
+            // bottomBar.style.width = '100%';
+            // bottomBar.style.left = '0';
+            bottomBarWidth = parentW;
+            bottomBarPos = 0;
         }
+        this.setState({
+            rightBarHeight: rightBarHeight,
+            rightBarPos: rightBarPos,
+            bottomBarWidth: bottomBarWidth,
+            bottomBarPos: bottomBarPos,
+        });
         this.updateImageInfo();
     }
 
@@ -309,7 +338,7 @@ class OieCanvas extends React.Component {
             return;
         e.preventDefault();
         this.isScrollRight = true;
-        this.oldMousePos = e.screenY;
+        this.oldMousePos = e.pageY;
     }
 
     onRightScrollBarMouseMove(e) {
@@ -318,19 +347,18 @@ class OieCanvas extends React.Component {
         e.preventDefault();
         if (!this.isScrollRight)
             return;
-        let bar = document.getElementById("right_scroll");
-        let h = bar.offsetHeight;
+        let delta = e.pageY - this.oldMousePos;
         let parentH = document.getElementById('right_scroll_bar').offsetHeight;
-        let newPos = bar.offsetTop + e.screenY - this.oldMousePos;
+        let newPos = this.state.rightBarPos + delta;
         if (newPos < 0)
             newPos = 0;
-        else if (newPos > parentH - h)
-            newPos = parentH - h;
+        else if (newPos > parentH - this.state.rightBarHeight)
+            newPos = parentH - this.state.rightBarHeight;
         this.setState({
-            positionY: this.state.positionY - newPos
+            positionY: -newPos,
+            rightBarPos: newPos,
         });
-        bar.style.top = '' + newPos;
-        this.oldMousePos = e.screenY;
+        this.oldMousePos = e.pageY;
         this.redraw();
     }
 
@@ -355,19 +383,18 @@ class OieCanvas extends React.Component {
         e.preventDefault();
         if (!this.isScrollBottom)
             return;
-        let bar = document.getElementById("bottom_scroll");
-        let w = bar.offsetWidth;
+        let delta = e.pageX - this.oldMousePos;
         let parentW = document.getElementById('bottom_scroll_bar').offsetWidth;
-        let newPos = bar.offsetLeft + e.screenX - this.oldMousePos;
+        let newPos = this.state.bottomBarPos + delta;
         if (newPos < 0)
             newPos = 0;
-        else if (newPos > parentW - w)
-            newPos = parentW - w;
-        setState({
-            positionX: this.state.positionX - newPos
+        else if (newPos > parentW - this.state.bottomBarWidth)
+            newPos = parentW - this.state.bottomBarWidth;
+        this.setState({
+            positionX: -newPos,
+            bottomBarPos: newPos,
         });
-        bar.style.left = '' + newPos;
-        this.oldMousePos = e.screenX;
+        this.oldMousePos = e.pageX;
         this.redraw();
     }
 
