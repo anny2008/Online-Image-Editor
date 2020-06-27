@@ -10,7 +10,7 @@ class ToolBlur extends React.Component {
         return (
             <div>
                 <div className="input-row">
-                    <h3>Resize</h3>
+                    <h3>Blur Image</h3>
                 </div>
                 <div className="input-row">
                     <p className="float-left input-label">kernel size</p>
