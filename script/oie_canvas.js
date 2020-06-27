@@ -164,6 +164,9 @@ class OieCanvas extends React.Component {
         let y = (parentH - h) * 0.5;
         this.positionX = x;
         this.positionY = y;
+        console.log('state = ', this.state);
+        console.log('x, y = ', x, y);
+        console.log('w, h = ', w, h);
         this.redraw();
         let rightBar = document.getElementById("right_scroll");
         let bottomBar = document.getElementById("bottom_scroll");
