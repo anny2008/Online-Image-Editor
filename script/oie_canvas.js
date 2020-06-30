@@ -11,7 +11,8 @@ class OieCanvas extends React.Component {
             rightBarPos: 0,
             bottomBarPos: 0,
             rightBarHeight: 0,
-            bottomBarWidth: 0
+            bottomBarWidth: 0,
+            image: {width: 0, height: 0}
         }
         this.textFieldId = 0;
         this.scale = 1;
@@ -47,11 +48,11 @@ class OieCanvas extends React.Component {
 
     enableCrop() {
         this.allowZooming = false;
-        this.scale = Math.min((this.state.width - 50) / this.image.width, (this.state.height - 50) / this.image.height, 1);
+        this.scale = Math.min((this.state.width - 50) / this.state.image.width, (this.state.height - 50) / this.state.image.height, 1);
         let barParentH = document.getElementById("right_scroll_bar").offsetHeight;
         let barParentW = document.getElementById("bottom_scroll_bar").offsetWidth;
-        let posX= (this.state.width - this.image.width * this.scale) * 0.5;
-        let posY= (this.state.height - this.image.height * this.scale) * 0.5;
+        let posX = (this.state.width - this.state.image.width * this.scale) * 0.5;
+        let posY = (this.state.height - this.state.image.height * this.scale) * 0.5;
 
         this.setState({
             positionX: posX,
@@ -66,11 +67,27 @@ class OieCanvas extends React.Component {
         evenBus.$emit('EventEnableCrop', {
             x: posX,
             y: posY,
-            width: this.image.width * this.scale,
-            height: this.image.height * this.scale,
+            width: this.state.image.width * this.scale,
+            height: this.state.image.height * this.scale,
             parentW: this.state.width,
             parentH: this.state.height
         });
+    }
+
+    resetCanvas() {
+        this.drawPoints = [];
+        this.imageStack = [];
+        let canvas = document.getElementById("canvas");
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        let canvasSrc = document.getElementById("canvas_src");
+        canvasSrc.getContext('2d').clearRect(0, 0, canvasSrc.width, canvasSrc.height);
+
+        this.setState({
+            image: {
+                width: 0,
+                height: 0
+            }
+        })
     }
 
     disableCrop() {
@@ -79,20 +96,22 @@ class OieCanvas extends React.Component {
     }
 
     onImageLoaded() {
+        this.resetCanvas();
         let output = cv.imread(this.src);
         this.flushImage(output);
         this.scale = 1;
-        evenBus.$emit('EventImageChanged', this.image);
+        evenBus.$emit('EventImageChanged', this.state.image);
         this.src.onload = (function () {
             this.updateScrollbar();
         }).bind(this);
     }
 
     onImageCreated(info) {
+        this.resetCanvas();
         this.scale = 1;
         let output = new cv.Mat(info.height, info.width, cv.CV_8UC4);
         this.flushImage(output);
-        evenBus.$emit('EventImageChanged', this.image);
+        evenBus.$emit('EventImageChanged', this.state.image);
         this.src.onload = (function () {
             this.updateScrollbar();
         }).bind(this);
@@ -106,9 +125,11 @@ class OieCanvas extends React.Component {
                 <div id="relative_container" style={{
                     position: 'relative', width: this.state.width, height: this.state.height, overflow: 'hidden'
                 }}>
-                    <canvas id="canvas" className="positioned" style={{
+                    <canvas id="canvas" className="positioned" width={this.state.image.width}
+                            height={this.state.image.height} style={{
                         left: this.state.positionX,
-                        top: this.state.positionY
+                        top: this.state.positionY,
+                        outline: '2px solid white'
                     }}/>
                     <div id="all_text_field_container">
                         {
@@ -175,8 +196,8 @@ class OieCanvas extends React.Component {
     }
 
     updateScrollbar() {
-        let w = this.image.width * this.scale;
-        let h = this.image.height * this.scale;
+        let w = this.state.image.width * this.scale;
+        let h = this.state.image.height * this.scale;
         let parentW = this.state.width;
         let parentH = this.state.height;
         let x = (parentW - w) * 0.5;
@@ -227,8 +248,8 @@ class OieCanvas extends React.Component {
     }
 
     redraw() {
-        let w = this.image.width * this.scale;
-        let h = this.image.height * this.scale;
+        let w = this.state.image.width * this.scale;
+        let h = this.state.image.height * this.scale;
         let parentW = this.state.width;
         let parentH = this.state.height;
         let x = this.state.positionX;
@@ -241,7 +262,7 @@ class OieCanvas extends React.Component {
         canvas.style.left = "" + x;
         canvas.style.top = "" + y;
         this.canvasContext = canvas.getContext('2d');
-        this.canvasContext.drawImage(this.src, 0, 0, this.image.width, this.image.height, 0, 0, w, h);
+        this.canvasContext.drawImage(this.src, 0, 0, this.state.image.width, this.state.image.height, 0, 0, w, h);
         this.freeDraw(this.canvasContext, this.scale);
         evenBus.$emit('EventImageRedraw', {
             offsetX: this.state.positionX,
@@ -272,8 +293,8 @@ class OieCanvas extends React.Component {
     applyCanvas(style) {
         let text_image = document.getElementById("text_image");
         text_image.onload = (function () {
-            this.canvasSrc.width = this.image.width;
-            this.canvasSrc.height = this.image.height;
+            this.canvasSrc.width = this.state.image.width;
+            this.canvasSrc.height = this.state.image.height;
             let context = this.canvasSrc.getContext('2d');
             context.drawImage(this.src, 0, 0);
             this.freeDraw(context, 1);
@@ -467,7 +488,7 @@ class OieCanvas extends React.Component {
     }
 
     updateImageInfo() {
-        document.getElementById("image_info_text").innerText = "" + this.image.width + "x" + this.image.height + "@" + Math.round(this.scale * 100) + "%";
+        document.getElementById("image_info_text").innerText = "" + this.state.image.width + "x" + this.state.image.height + "@" + Math.round(this.scale * 100) + "%";
     }
 
     onSetFreePaintStyle(info) {
@@ -545,8 +566,8 @@ class OieCanvas extends React.Component {
     }
 
     flushFreePaint() {
-        this.canvasSrc.width = this.image.width;
-        this.canvasSrc.height = this.image.height;
+        this.canvasSrc.width = this.state.image.width;
+        this.canvasSrc.height = this.state.image.height;
         let context = this.canvasSrc.getContext('2d');
         context.drawImage(this.src, 0, 0);
         this.freeDraw(context, 1);
@@ -558,10 +579,12 @@ class OieCanvas extends React.Component {
         this.canvasSrc.style.width = output.size().width;
         this.canvasSrc.style.height = output.size().height;
         cv.imshow(this.canvasSrc, output);
-        this.image = {
-            width: output.size().width,
-            height: output.size().height
-        };
+        this.setState({
+            image: {
+                width: output.size().width,
+                height: output.size().height
+            }
+        })
         output.delete();
         this.backUpImage();
     }
@@ -583,10 +606,12 @@ class OieCanvas extends React.Component {
 
     displayCurrentImage() {
         let record = this.imageStack[this.currentImageIndex];
-        this.image = {
-            width: record.w,
-            height: record.h
-        }
+        this.setState({
+            image: {
+                width: output.size().width,
+                height: output.size().height
+            }
+        })
         this.src.src = record.url;
     }
 
@@ -600,8 +625,8 @@ class OieCanvas extends React.Component {
         console.log('stack length', this.imageStack.length);
         this.imageStack.push({
             url: url,
-            w: this.image.width,
-            h: this.image.height
+            w: this.state.image.width,
+            h: this.state.image.height
         });
         this.currentImageIndex += 1;
         this.src.src = url;

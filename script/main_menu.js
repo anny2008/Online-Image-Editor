@@ -5,6 +5,7 @@ class MainMenu extends React.Component {
         evenBus.$on('EventOnPickerApiLoad', this.onPickerApiLoaded.bind(this));
         evenBus.$on('EventOnUserLogin', this.onUserLogin.bind(this));
         evenBus.$on('EventOnImageDownloaded', this.onImageDownloaded.bind(this));
+        evenBus.$on('EventOnHomeClicked', this.onHomeClicked.bind(this));
     }
 
     render() {
@@ -120,8 +121,7 @@ class MainMenu extends React.Component {
         document.getElementById('username').hidden = true;
     }
 
-    onImageDownloaded(file, name)
-    {
+    onImageDownloaded(file, name) {
         let editor = document.getElementById('editor');
         let menu = document.getElementById('main_menu');
         menu.hidden = true;
@@ -131,6 +131,13 @@ class MainMenu extends React.Component {
         evenBus.$emit('EventImageNameChanged', name);
         this.imageSrc.src = url;
         console.log(url)
+    }
+
+    onHomeClicked() {
+        let editor = document.getElementById('editor');
+        let menu = document.getElementById('main_menu');
+        menu.hidden = false;
+        editor.hidden = true;
     }
 }
 

@@ -10,7 +10,8 @@ class ToolBox extends React.Component {
         return (
             <div>
                 <div className="tab height-fluid">
-                    <button id="home_button"><i id='icon_home' className="material-icons">home</i></button>
+                    <button id="home_button"><i id='icon_home' className="material-icons"
+                                                onClick={this.onHomeClicked}>home</i></button>
                     <div className="height-fluid">
                         <div className="tool-container">
                             <button className="tab-link" onClick={(e) => this.openTab(e, 'tool_resize')}><i
@@ -90,6 +91,10 @@ class ToolBox extends React.Component {
             tabContent[i].style.display = "none";
         }
         evenBus.$emit('EventOpenTool', '');
+    }
+
+    onHomeClicked() {
+        evenBus.$emit('EventOnHomeClicked');
     }
 }
 

@@ -16,9 +16,9 @@ class ToolPaint extends React.Component {
                     <input id="paint_size_text" type="number" className=""/>
                 </div>
                 <div className="input-row">
-                    <p className="float-left input-label">color code</p>
-                    <input id="paint_color_code_text" type="text" className=""/>
-                    <div className="chosen-color" id="paint_chosen_color"/>
+                    <p className="float-left input-label">color</p>
+                    <input id="paint_color_code_text" type="text" className="float-right"/>
+                    <input type="color" id="paint_chosen_color" className="center margin-5" style={{width: 30}}/>
                 </div>
                 <div className="input-row">
                     <p id="paint_error_message" className="error-message"/>
@@ -48,11 +48,18 @@ class ToolPaint extends React.Component {
             document.getElementById("paint_color_code_text").value = this.colorCode;
             this.setErrorMessage('invalid color code');
         }
-        document.getElementById("paint_chosen_color").style.backgroundColor = this.colorCode;
+        document.getElementById("paint_chosen_color").value = this.colorCode;
     }
 
+    onPaintColorChosenChanged() {
+        let colorCode = document.getElementById("paint_chosen_color").value;
+        this.colorCode = colorCode;
+        this.setFreePaintStyle();
+        document.getElementById("paint_color_code_text").value = this.colorCode;
+    }
     componentDidMount() {
-        document.getElementById("paint_chosen_color").style.backgroundColor = this.colorCode;
+        document.getElementById("paint_chosen_color").value = this.colorCode;
+        document.getElementById("paint_chosen_color").onchange = this.onPaintColorChosenChanged.bind(this);
         document.getElementById("paint_size_text").value = this.size.toString();
         document.getElementById("paint_color_code_text").value = this.colorCode;
         document.getElementById("paint_size_text").onchange = this.onTextSizeChange.bind(this);

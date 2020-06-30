@@ -22,9 +22,9 @@ class ToolText extends React.Component {
                     <input id="text_size_text" type="number" className=""/>
                 </div>
                 <div className="input-row">
-                    <p className="float-left input-label">color code</p>
-                    <input id="text_color_code_text" type="text" className=""/>
-                    <div className="chosen-color" id="text_chosen_color"/>
+                    <p className="float-left input-label">color</p>
+                    <input id="text_color_code_text" type="text"  className="float-right"/>
+                    <input type="color" id="text_chosen_color" className="center margin-5" style={{width: 30}}/>
                 </div>
                 <div className="input-row">
                     <p className="float-left input-label">Font</p>
@@ -61,7 +61,13 @@ class ToolText extends React.Component {
             document.getElementById("text_color_code_text").value = this.colorCode;
             this.setErrorMessage('invalid color code');
         }
-        document.getElementById("text_chosen_color").style.backgroundColor = this.colorCode;
+        document.getElementById("text_chosen_color").value = this.colorCode;
+    }
+
+    onTextColorChosenChanged(t) {
+        let colorCode = document.getElementById("text_chosen_color").value;
+        this.colorCode = colorCode;
+        document.getElementById("text_color_code_text").value = this.colorCode;
     }
 
     onSelectFont() {
@@ -80,6 +86,8 @@ class ToolText extends React.Component {
     componentDidMount() {
         document.getElementById("text_size_text").value = this.size.toString();
         document.getElementById("text_color_code_text").value = this.colorCode;
+        document.getElementById("text_chosen_color").value = this.colorCode;
+        document.getElementById("text_chosen_color").onchange = this.onTextColorChosenChanged.bind(this);
         document.getElementById("text_size_text").onchange = this.onTextSizeChange.bind(this);
         document.getElementById("text_color_code_text").onchange = this.onTextColorCodeChange.bind(this);
         document.getElementById("select_font").onchange = this.onSelectFont.bind(this);

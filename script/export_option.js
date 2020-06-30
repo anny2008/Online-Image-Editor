@@ -4,6 +4,8 @@ class ExportOption extends React.Component {
         this.mimeType = 'image/png';
         this.imageName = 'image';
         evenBus.$on('EventShowExportOption', (function () {
+            document.getElementById("btn_choose_type").hidden = false;
+            document.getElementById("btn_save_file").hidden = true;
             $("#export_image_modal").modal("show");
         }).bind(this));
         evenBus.$on('EventImageNameChanged', (function (name) {
@@ -28,7 +30,8 @@ class ExportOption extends React.Component {
                                 </div>
                                 <div id="btn_save_file" hidden>
                                     <button id='btn_save_device' className="float-left btn-success">Device</button>
-                                    <button id='btn_save_ggdrive' className="float-left btn-success">Google Drive</button>
+                                    <button id='btn_save_ggdrive' className="float-left btn-success">Google Drive
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -63,7 +66,7 @@ class ExportOption extends React.Component {
         link.click();
     }
 
-    onSaveGoogleDriveClick(){
+    onSaveGoogleDriveClick() {
         let canvas = document.getElementById("canvas_src");
         canvas.toBlob(this.renderSaveToDrive.bind(this), this.mimeType, 1);
     }
@@ -76,7 +79,7 @@ class ExportOption extends React.Component {
 
     renderSaveToDrive(blob) {
         $("#export_image_modal").modal("hide");
-        uploadFile(blob, this.imageName+'.'+this.mimeType.replace('image/', ''), this.mimeType);
+        uploadFile(blob, this.imageName + '.' + this.mimeType.replace('image/', ''), this.mimeType);
         // let url = URL.createObjectURL(blob);
         // console.log('savetodrive', url);
         // gapi.savetodrive.render('savetodrive-div', {

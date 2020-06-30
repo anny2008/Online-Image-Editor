@@ -36,9 +36,9 @@ class ToolShape extends React.Component {
                     <input id="shape_line_width_text" type="number" className=""/>
                 </div>
                 <div className="input-row">
-                    <p className="float-left input-label">color code</p>
-                    <input id="shape_color_code_text" type="text" className=""/>
-                    <div className="chosen-color" id="shape_chosen_color"/>
+                    <p className="float-left input-label">color</p>
+                    <input id="shape_color_code_text" type="text" className="float-right"/>
+                    <input type="color" id="shape_chosen_color" className="center margin-5" style={{width: 30}}/>
                 </div>
                 <div className="input-row">
                     <p id="shape_error_message" className="error-message"/>
@@ -66,7 +66,13 @@ class ToolShape extends React.Component {
             document.getElementById("shape_color_code_text").value = this.color;
             this.setErrorMessage('invalid color code');
         }
-        document.getElementById("shape_chosen_color").style.backgroundColor = this.color;
+        document.getElementById("shape_chosen_color").value = this.color;
+    }
+
+    onShapeColorChosenChanged() {
+        let colorCode = document.getElementById("shape_chosen_color").value;
+        this.color = colorCode;
+        document.getElementById("shape_color_code_text").value = this.color;
     }
 
     onSelectShape() {
@@ -90,6 +96,8 @@ class ToolShape extends React.Component {
     componentDidMount() {
         document.getElementById("shape_line_width_text").value = this.lineWidth;
         document.getElementById("shape_color_code_text").value = this.color;
+        document.getElementById("shape_chosen_color").value = this.color;
+        document.getElementById("shape_chosen_color").onchange = this.onShapeColorChosenChanged.bind(this);
         document.getElementById("shape_line_width_text").onchange = this.onLineWidthTextChange.bind(this);
         document.getElementById("shape_color_code_text").onchange = this.onTextColorCodeChange.bind(this);
         document.getElementById("select_shape").onchange = this.onSelectShape.bind(this);
