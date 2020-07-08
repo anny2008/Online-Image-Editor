@@ -13,7 +13,7 @@ class ToolShape extends React.Component {
         return (
             <div>
                 <div className="input-row">
-                    <h3>Insert text</h3>
+                    <h3>Draw Shape</h3>
                 </div>
                 <div className="input-row">
                     <button id='btn_insert_new_shape' className="center btn-success">Insert New Shape</button>

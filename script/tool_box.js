@@ -8,7 +8,7 @@ class ToolBox extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="height-fluid">
                 <div className="tab height-fluid">
                     <button id="home_button"><i id='icon_home' className="material-icons"
                                                 onClick={this.onHomeClicked}>home</i></button>

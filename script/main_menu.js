@@ -44,17 +44,17 @@ class MainMenu extends React.Component {
                                 <div className="col-4">
                                     <label className="btn btn-outline-dark width-fluid height-fluid text-center">
                                         <input type="file" id="image_input" hidden/>
-                                        Device
+                                        From Device
                                     </label>
                                 </div>
                                 <div className="col-4">
                                     <button type="button"
-                                            className="btn btn-outline-dark width-fluid height-fluid">Link
+                                            className="btn btn-outline-dark width-fluid height-fluid">From Link
                                     </button>
                                 </div>
                                 <div className="col-4">
                                     <button id="btn_gg_drive" type="button"
-                                            className="btn btn-outline-dark width-fluid height-fluid" hidden>Google
+                                            className="btn btn-outline-dark width-fluid height-fluid" hidden>From Google
                                         Drive
                                     </button>
                                 </div>

@@ -20,7 +20,7 @@ class ExportOption extends React.Component {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h4 className="modal-title" style={{color: 'black'}}>Save image to device</h4>
+                                <h4 className="modal-title" style={{color: 'black'}}>Export Image</h4>
                                 <button type="button" className="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div className="modal-footer">
