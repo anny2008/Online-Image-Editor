@@ -134,10 +134,10 @@ class MainMenu extends React.Component {
     }
 
     onHomeClicked() {
-//         let editor = document.getElementById('editor');
-//         let menu = document.getElementById('main_menu');
-//         menu.hidden = false;
-//         editor.hidden = true;
+        let editor = document.getElementById('editor');
+        let menu = document.getElementById('main_menu');
+        menu.hidden = false;
+        editor.hidden = true;
     }
 }
 
