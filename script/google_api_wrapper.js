@@ -8,6 +8,16 @@ const scope = ['https://www.googleapis.com/auth/drive.file',
 let authApiLoaded = false;
 let pickerApiLoaded = false;
 let oauthToken;
+let userID = undefined;
+
+evenBus.$on('EventUserLogout', () => {
+    userID = undefined;
+    oauthToken = undefined;
+});
+
+function getUserID() {
+    return userID;
+}
 
 function loadPickerApi() {
     gapi.load('auth', {'callback': onAuthApiLoad});
@@ -44,6 +54,7 @@ function openPicker() {
     if (pickerApiLoaded && authApiLoaded) {
         if (!oauthToken) {
             authorizeUser(createPicker);
+        } else {
             createPicker();
         }
     }
@@ -58,7 +69,7 @@ function handleAuthResult(authResult) {
         xmlHttp.open("GET", url, false); // false for synchronous request
         xmlHttp.send(null);
         let result = JSON.parse(xmlHttp.responseText);
-        console.log(result.name);
+        userID = result.id;
         evenBus.$emit('EventOnUserLogin', result);
     }
 }

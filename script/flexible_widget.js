@@ -14,6 +14,10 @@ class FlexibleWidget extends React.Component {
             rotate: 0,
             isDeleted: false
         };
+        let minWidth = parseFloat(props.minWidth);
+        this.minWidth = minWidth ? minWidth : 1;
+        let minHeight = parseFloat(props.minHeight);
+        this.minHeight = minHeight ? minHeight : 1;
         // evenBus.$on('EventOpenTool', (function (tool) {
         //     this.enable = tool === 'tool_text';
         // }).bind(this));
@@ -46,7 +50,8 @@ class FlexibleWidget extends React.Component {
                     top: this.state.y,
                     transform: 'scale(' + this.state.scale + ',' + this.state.scale + ')' + 'rotate(' + this.state.rotate + 'deg)'
                 }}>
-                    <img src="image/rotate.png" id={this.id + "rotate"} className="positioned" style={{
+                    <img src="image/rotate.png" id={this.id + "rotate"} className="positioned" alt=" "
+                         style={{
                         left: -20,
                         top: -73,
                     }}/>
@@ -167,16 +172,16 @@ class FlexibleWidget extends React.Component {
                 const dx = e.pageX - this.oldPositionX;
                 this.oldPositionX = e.pageX;
                 w += dx;
-                if (w < 200) {
-                    w = 200;
+                if (w < this.minWidth) {
+                    w = this.minWidth;
                 }
             }
             if (this.isResizingLeft) {
                 const dx = e.pageX - this.oldPositionX;
                 this.oldPositionX = e.pageX;
                 w -= dx;
-                if (w < 200) {
-                    w = 200;
+                if (w < this.minWidth) {
+                    w = this.minWidth;
                 }
                 x += dx;
             }
@@ -184,8 +189,8 @@ class FlexibleWidget extends React.Component {
                 const dy = e.pageY - this.oldPositionY;
                 this.oldPositionY = e.pageY;
                 h -= dy;
-                if (h < 70) {
-                    h = 70;
+                if (h < this.minHeight) {
+                    h = this.minHeight;
                 }
                 y += dy;
             }
@@ -193,8 +198,8 @@ class FlexibleWidget extends React.Component {
                 const dy = e.pageY - this.oldPositionY;
                 this.oldPositionY = e.pageY;
                 h += dy;
-                if (h < 70) {
-                    h = 70;
+                if (h < this.minHeight) {
+                    h = this.minHeight;
                 }
             }
             this.setState({
@@ -217,6 +222,7 @@ class FlexibleWidget extends React.Component {
     onFlexibleContainerMouseDown(e) {
         if (!this.enable)
             return;
+        e.preventDefault();
         this.isMoving = true;
         this.oldPosition = {x: e.pageX, y: e.pageY};
     }
@@ -225,6 +231,7 @@ class FlexibleWidget extends React.Component {
         if (!this.enable)
             return;
         if (this.isMoving) {
+            e.preventDefault();
             let position = {x: e.pageX, y: e.pageY};
             let x = this.state.x + position.x - this.oldPosition.x;
             let y = this.state.y + position.y - this.oldPosition.y;

@@ -95,9 +95,15 @@ class OieCanvas extends React.Component {
         this.updateScrollbar();
     }
 
-    onImageLoaded() {
+    onImageLoaded(source) {
         this.resetCanvas();
         let output = cv.imread(this.src);
+        sendEventOpenImage({
+            source: source,
+            width: output.size().width,
+            height: output.size().height,
+            time: getCurrentDateTime()
+        });
         this.flushImage(output);
         this.scale = 1;
         evenBus.$emit('EventImageChanged', this.state.image);
@@ -107,6 +113,12 @@ class OieCanvas extends React.Component {
     }
 
     onImageCreated(info) {
+        sendEventOpenImage({
+            source: 'new',
+            width: info.width,
+            height: info.height,
+            time: getCurrentDateTime()
+        });
         this.resetCanvas();
         this.scale = 1;
         let output = new cv.Mat(info.height, info.width, cv.CV_8UC4);
@@ -608,8 +620,8 @@ class OieCanvas extends React.Component {
         let record = this.imageStack[this.currentImageIndex];
         this.setState({
             image: {
-                width: output.size().width,
-                height: output.size().height
+                width: record.w,
+                height: record.h
             }
         })
         this.src.src = record.url;

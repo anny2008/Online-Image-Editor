@@ -5,7 +5,7 @@ class MainMenu extends React.Component {
         evenBus.$on('EventOnPickerApiLoad', this.onPickerApiLoaded.bind(this));
         evenBus.$on('EventOnUserLogin', this.onUserLogin.bind(this));
         evenBus.$on('EventOnImageDownloaded', this.onImageDownloaded.bind(this));
-        evenBus.$on('EventOnHomeClicked', this.onHomeClicked.bind(this));
+        // evenBus.$on('EventOnHomeClicked', this.onHomeClicked.bind(this));
     }
 
     render() {
@@ -44,17 +44,17 @@ class MainMenu extends React.Component {
                                 <div className="col-4">
                                     <label className="btn btn-outline-dark width-fluid height-fluid text-center">
                                         <input type="file" id="image_input" hidden/>
-                                        From Device
+                                        Device
                                     </label>
                                 </div>
                                 <div className="col-4">
                                     <button type="button"
-                                            className="btn btn-outline-dark width-fluid height-fluid">From Link
+                                            className="btn btn-outline-dark width-fluid height-fluid">Link
                                     </button>
                                 </div>
                                 <div className="col-4">
                                     <button id="btn_gg_drive" type="button"
-                                            className="btn btn-outline-dark width-fluid height-fluid" hidden>From Google
+                                            className="btn btn-outline-dark width-fluid height-fluid" hidden>Google
                                         Drive
                                     </button>
                                 </div>
@@ -74,22 +74,29 @@ class MainMenu extends React.Component {
         // document.getElementById("btn_rotate_right").onclick = this.onRotateRightClick.bind(this);
         this.imageSrc = document.getElementById('image_src');
         document.getElementById('image_input').addEventListener('change', this.onLoadImage.bind(this), false);
-        this.imageSrc.onload = function () {
-            evenBus.$emit('EventImageLoaded', 'image_src');
+        this.imageSrc.onerror = function () {
+            alert('Fail to load image');
         };
         document.getElementById('btn_login').addEventListener('click', authorizeUser, false);
         document.getElementById('btn_gg_drive').addEventListener('click', this.onGGDriveClick, false);
         document.getElementById('btn_logout').addEventListener('click', this.onLogout.bind(this), false);
     }
 
-    onLoadImage(e) {
+    onImageLoaded(src){
+        evenBus.$emit('EventImageLoaded', src);
         $("#open-image-modal").modal("hide");
         let editor = document.getElementById('editor');
         let menu = document.getElementById('main_menu');
         menu.hidden = true;
         editor.hidden = false;
+    }
+
+    onLoadImage(e) {
         let file = e.target.files[0];
         evenBus.$emit('EventImageNameChanged', file.name);
+        this.imageSrc.onload = function () {
+            this.onImageLoaded('device');
+        }.bind(this);
         this.imageSrc.src = URL.createObjectURL(file);
     }
 
@@ -102,6 +109,11 @@ class MainMenu extends React.Component {
     }
 
     onUserLogin(authResult) {
+        sendEventLogin({
+            user: authResult.id,
+            action: 'Login',
+            time: getCurrentDateTime()
+        })
         document.getElementById('btn_login').hidden = true;
         document.getElementById('btn_logout').hidden = false;
         let userNameText = document.getElementById('username');
@@ -115,10 +127,10 @@ class MainMenu extends React.Component {
     }
 
     onLogout() {
-
         document.getElementById('btn_login').hidden = false;
         document.getElementById('btn_logout').hidden = true;
         document.getElementById('username').hidden = true;
+        evenBus.$emit('EventUserLogout');
     }
 
     onImageDownloaded(file, name) {
@@ -129,6 +141,9 @@ class MainMenu extends React.Component {
         let url = URL.createObjectURL(file);
         console.log(name);
         evenBus.$emit('EventImageNameChanged', name);
+        this.imageSrc.onload = function () {
+            this.onImageLoaded('drive');
+        }.bind(this);
         this.imageSrc.src = url;
         console.log(url)
     }

@@ -80,7 +80,7 @@ class ToolResize extends React.Component {
             }
         }
         this.validateFutureSize();
-    }
+    }sn
 
     componentDidMount() {
         document.getElementById("resize_width_text").onchange = this.onTextWidthChange.bind(this);

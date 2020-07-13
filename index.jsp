@@ -43,7 +43,7 @@
 </div>
 <div id="main_menu" class="bg-black">
 </div>
-<script src="script/color_picker/color_picker.js" type="text/babel"></script>
+<script src="script/send_log.js" type="text/babel"></script>
 <script src="script/oie_canvas.js" type="text/babel"></script>
 <script src="script/flexible_widget.js" type="text/babel"></script>
 <script src="script/tool_crop.js" type="text/babel"></script>
@@ -65,7 +65,6 @@
 <script src="https://apis.google.com/js/platform.js">
   {parsetags: 'explicit'}
 </script>
-
 </body>
 </html>
 
